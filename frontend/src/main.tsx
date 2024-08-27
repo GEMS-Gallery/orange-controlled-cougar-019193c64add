@@ -14,6 +14,15 @@ const theme = createTheme({
       main: '#FF9800',
     },
   },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h2: {
+      fontFamily: '"New Amsterdam", cursive',
+    },
+    h5: {
+      fontFamily: '"New Amsterdam", cursive',
+    },
+  },
 });
 
 ReactDOM.render(
