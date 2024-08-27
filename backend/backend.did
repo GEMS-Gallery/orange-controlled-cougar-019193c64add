@@ -7,6 +7,7 @@ type TaxPayer =
  };
 service : {
   createTaxPayer: (text, text, text, text) -> ();
+  deleteTaxPayer: (text) -> (bool);
   getTaxPayers: () -> (vec TaxPayer) query;
   searchTaxPayer: (text) -> (opt TaxPayer) query;
   updateTaxPayer: (text, text, text, text) -> (bool);

@@ -10,6 +10,7 @@ export interface TaxPayer {
 }
 export interface _SERVICE {
   'createTaxPayer' : ActorMethod<[string, string, string, string], undefined>,
+  'deleteTaxPayer' : ActorMethod<[string], boolean>,
   'getTaxPayers' : ActorMethod<[], Array<TaxPayer>>,
   'searchTaxPayer' : ActorMethod<[string], [] | [TaxPayer]>,
   'updateTaxPayer' : ActorMethod<[string, string, string, string], boolean>,

@@ -68,4 +68,15 @@ actor {
       };
     }
   };
+
+  // Delete a TaxPayer record
+  public func deleteTaxPayer(tid: Text) : async Bool {
+    switch (taxPayers.get(tid)) {
+      case (null) { false };
+      case (?existingTaxPayer) {
+        taxPayers.delete(tid);
+        true
+      };
+    }
+  };
 }

@@ -32,7 +32,9 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editingTaxPayer, setEditingTaxPayer] = useState<TaxPayer | null>(null);
+  const [deletingTaxPayer, setDeletingTaxPayer] = useState<TaxPayer | null>(null);
   const { control, handleSubmit, reset, setValue } = useForm<TaxPayer>();
 
   const columns = [
@@ -43,9 +45,14 @@ const App: React.FC = () => {
     {
       name: 'Actions',
       cell: (row: TaxPayer) => (
-        <Button onClick={() => handleEditClick(row)} variant="contained" color="primary" size="small">
-          Edit
-        </Button>
+        <>
+          <Button onClick={() => handleEditClick(row)} variant="contained" color="primary" size="small" style={{ marginRight: '8px' }}>
+            Edit
+          </Button>
+          <Button onClick={() => handleDeleteClick(row)} variant="contained" color="secondary" size="small">
+            Delete
+          </Button>
+        </>
       ),
     },
   ];
@@ -124,13 +131,36 @@ const App: React.FC = () => {
     setLoading(false);
   };
 
+  const handleDeleteClick = (taxPayer: TaxPayer) => {
+    setDeletingTaxPayer(taxPayer);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deletingTaxPayer) {
+      setLoading(true);
+      try {
+        const success = await backend.deleteTaxPayer(deletingTaxPayer.tid);
+        if (success) {
+          setDeleteModalOpen(false);
+          await fetchTaxPayers();
+        } else {
+          console.error('Failed to delete tax payer');
+        }
+      } catch (error) {
+        console.error('Error deleting tax payer:', error);
+      }
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <HeroSection>
         <Typography variant="h2" component="h1" gutterBottom>
           TaxPayer Management System
         </Typography>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom fontWeight="bold">
           by Dominic Williams
         </Typography>
       </HeroSection>
@@ -320,6 +350,22 @@ const App: React.FC = () => {
           </Button>
           <Button onClick={handleSubmit(handleEditSubmit)} color="primary" variant="contained" disabled={loading}>
             {loading ? 'Updating...' : 'Update'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete the tax payer with TID: {deletingTaxPayer?.tid}?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteModalOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="secondary" variant="contained" disabled={loading}>
+            {loading ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>

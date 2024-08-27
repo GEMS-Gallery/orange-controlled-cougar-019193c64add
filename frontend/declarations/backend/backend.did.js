@@ -11,6 +11,7 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'deleteTaxPayer' : IDL.Func([IDL.Text], [IDL.Bool], []),
     'getTaxPayers' : IDL.Func([], [IDL.Vec(TaxPayer)], ['query']),
     'searchTaxPayer' : IDL.Func([IDL.Text], [IDL.Opt(TaxPayer)], ['query']),
     'updateTaxPayer' : IDL.Func(
