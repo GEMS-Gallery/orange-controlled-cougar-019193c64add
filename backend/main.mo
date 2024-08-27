@@ -1,3 +1,4 @@
+import Bool "mo:base/Bool";
 import Hash "mo:base/Hash";
 
 import HashMap "mo:base/HashMap";
@@ -49,5 +50,22 @@ actor {
   // Search for a TaxPayer by TID
   public query func searchTaxPayer(tid: Text) : async ?TaxPayer {
     return taxPayers.get(tid);
+  };
+
+  // Update a TaxPayer record
+  public func updateTaxPayer(tid: Text, firstName: Text, lastName: Text, address: Text) : async Bool {
+    switch (taxPayers.get(tid)) {
+      case (null) { false };
+      case (?existingTaxPayer) {
+        let updatedTaxPayer : TaxPayer = {
+          tid = tid;
+          firstName = firstName;
+          lastName = lastName;
+          address = address;
+        };
+        taxPayers.put(tid, updatedTaxPayer);
+        true
+      };
+    }
   };
 }

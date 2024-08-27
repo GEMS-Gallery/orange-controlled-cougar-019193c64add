@@ -9,4 +9,5 @@ service : {
   createTaxPayer: (text, text, text, text) -> ();
   getTaxPayers: () -> (vec TaxPayer) query;
   searchTaxPayer: (text) -> (opt TaxPayer) query;
+  updateTaxPayer: (text, text, text, text) -> (bool);
 }

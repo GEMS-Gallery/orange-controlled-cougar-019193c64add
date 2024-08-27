@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Typography, TextField, Button, Box } from '@mui/material';
+import { Container, Grid, Typography, TextField, Button, Box, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import DataTable from 'react-data-table-component';
 import { useForm, Controller } from 'react-hook-form';
 import { backend } from 'declarations/backend';
@@ -31,13 +31,23 @@ const App: React.FC = () => {
   const [searchTid, setSearchTid] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
-  const { control, handleSubmit, reset } = useForm<TaxPayer>();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingTaxPayer, setEditingTaxPayer] = useState<TaxPayer | null>(null);
+  const { control, handleSubmit, reset, setValue } = useForm<TaxPayer>();
 
   const columns = [
     { name: 'TID', selector: (row: TaxPayer) => row.tid, sortable: true },
     { name: 'First Name', selector: (row: TaxPayer) => row.firstName, sortable: true },
     { name: 'Last Name', selector: (row: TaxPayer) => row.lastName, sortable: true },
     { name: 'Address', selector: (row: TaxPayer) => row.address, sortable: true },
+    {
+      name: 'Actions',
+      cell: (row: TaxPayer) => (
+        <Button onClick={() => handleEditClick(row)} variant="contained" color="primary" size="small">
+          Edit
+        </Button>
+      ),
+    },
   ];
 
   const fetchTaxPayers = async () => {
@@ -87,6 +97,31 @@ const App: React.FC = () => {
       setSearchPerformed(false);
       fetchTaxPayers();
     }
+  };
+
+  const handleEditClick = (taxPayer: TaxPayer) => {
+    setEditingTaxPayer(taxPayer);
+    setValue('tid', taxPayer.tid);
+    setValue('firstName', taxPayer.firstName);
+    setValue('lastName', taxPayer.lastName);
+    setValue('address', taxPayer.address);
+    setEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (data: TaxPayer) => {
+    setLoading(true);
+    try {
+      const success = await backend.updateTaxPayer(data.tid, data.firstName, data.lastName, data.address);
+      if (success) {
+        setEditModalOpen(false);
+        await fetchTaxPayers();
+      } else {
+        console.error('Failed to update tax payer');
+      }
+    } catch (error) {
+      console.error('Error updating tax payer:', error);
+    }
+    setLoading(false);
   };
 
   return (
@@ -211,6 +246,83 @@ const App: React.FC = () => {
           </Grid>
         </Grid>
       </Container>
+      <Dialog open={editModalOpen} onClose={() => setEditModalOpen(false)}>
+        <DialogTitle>Edit TaxPayer</DialogTitle>
+        <DialogContent>
+          <form onSubmit={handleSubmit(handleEditSubmit)}>
+            <Controller
+              name="tid"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="TID"
+                  fullWidth
+                  margin="normal"
+                  disabled
+                />
+              )}
+            />
+            <Controller
+              name="firstName"
+              control={control}
+              defaultValue=""
+              rules={{ required: 'First Name is required' }}
+              render={({ field, fieldState: { error } }) => (
+                <TextField
+                  {...field}
+                  label="First Name"
+                  fullWidth
+                  margin="normal"
+                  error={!!error}
+                  helperText={error?.message}
+                />
+              )}
+            />
+            <Controller
+              name="lastName"
+              control={control}
+              defaultValue=""
+              rules={{ required: 'Last Name is required' }}
+              render={({ field, fieldState: { error } }) => (
+                <TextField
+                  {...field}
+                  label="Last Name"
+                  fullWidth
+                  margin="normal"
+                  error={!!error}
+                  helperText={error?.message}
+                />
+              )}
+            />
+            <Controller
+              name="address"
+              control={control}
+              defaultValue=""
+              rules={{ required: 'Address is required' }}
+              render={({ field, fieldState: { error } }) => (
+                <TextField
+                  {...field}
+                  label="Address"
+                  fullWidth
+                  margin="normal"
+                  error={!!error}
+                  helperText={error?.message}
+                />
+              )}
+            />
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditModalOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit(handleEditSubmit)} color="primary" variant="contained" disabled={loading}>
+            {loading ? 'Updating...' : 'Update'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

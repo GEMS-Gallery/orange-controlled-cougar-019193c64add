@@ -13,6 +13,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getTaxPayers' : IDL.Func([], [IDL.Vec(TaxPayer)], ['query']),
     'searchTaxPayer' : IDL.Func([IDL.Text], [IDL.Opt(TaxPayer)], ['query']),
+    'updateTaxPayer' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Bool],
+        [],
+      ),
   });
 };
 export const init = ({ IDL }) => { return []; };
