@@ -15,6 +15,7 @@ const App: React.FC = () => {
   const [taxPayers, setTaxPayers] = useState<TaxPayer[]>([]);
   const [searchTid, setSearchTid] = useState('');
   const [loading, setLoading] = useState(false);
+  const [searchPerformed, setSearchPerformed] = useState(false);
   const { control, handleSubmit, reset } = useForm<TaxPayer>();
 
   const columns = [
@@ -54,6 +55,7 @@ const App: React.FC = () => {
   const handleSearch = async () => {
     if (searchTid) {
       setLoading(true);
+      setSearchPerformed(true);
       try {
         const result = await backend.searchTaxPayer(searchTid);
         if (result) {
@@ -63,9 +65,11 @@ const App: React.FC = () => {
         }
       } catch (error) {
         console.error('Error searching tax payer:', error);
+        setTaxPayers([]);
       }
       setLoading(false);
     } else {
+      setSearchPerformed(false);
       fetchTaxPayers();
     }
   };
@@ -74,6 +78,9 @@ const App: React.FC = () => {
     <Container maxWidth="lg">
       <Typography variant="h4" component="h1" gutterBottom>
         TaxPayer Management System
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        by Dominic Williams
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
@@ -172,6 +179,11 @@ const App: React.FC = () => {
               Search
             </Button>
           </Box>
+          {searchPerformed && taxPayers.length === 0 && (
+            <Typography variant="body1" color="error" gutterBottom>
+              No tax payer found with the given TID.
+            </Typography>
+          )}
           <DataTable
             columns={columns}
             data={taxPayers}
